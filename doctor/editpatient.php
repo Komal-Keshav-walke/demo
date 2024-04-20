@@ -1,0 +1,1411 @@
+<?php
+// session_start();
+include('../connection.php');
+
+$id = $_GET['id']; 
+
+
+
+
+
+
+$sql = "SELECT * FROM `patients`  WHERE id = '$id'";
+$res = mysqli_query($conn, $sql);
+ 
+
+
+$row = mysqli_fetch_assoc($res);
+
+$aadhar = $row['aadhar'];
+
+ $sql1 = "SELECT * FROM `prescription` WHERE `aadhar` = '$aadhar'";
+$res1 = mysqli_query($conn, $sql1);
+ 
+// $row1 = mysqli_fetch_assoc($res1);
+
+
+?>
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Receptionist Dashboard</title>
+    <link rel="stylesheet" href="admin.css">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+
+    <script src="https://unpkg.com/boxicons@2.1.4/dist/boxicons.js"></script>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+
+    
+    <script src="https://kit.fontawesome.com/6ee00b2260.js" crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10.16.6/dist/sweetalert2.all.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10.16.6/dist/sweetalert2.min.css">
+    <style>
+      * {box-sizing: border-box;}
+
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  background-color:#f4f4f4;
+}
+
+.topnav {
+  overflow: hidden;
+  background-color:purple;
+
+ 
+}
+
+.topnav a {
+  float: left;
+  display: block;
+  color: white;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+  font-size: 17px;
+}
+
+.topnav a:hover {
+  background-color: #ddd;
+  color: black;
+}
+
+/* .topnav a.active {
+  background-color: #2196F3;
+  color: white;
+} */
+
+.topnav .search-container {
+  float: right;
+  
+  /* padding-right: 20px; */
+}
+
+.topnav input[type=text] {
+  padding: 6px;
+  margin-top: 8px;
+  font-size: 17px;
+  border: none;
+}
+
+.topnav .search-container button {
+  float: right;
+  padding: 6px 10px;
+  margin-top: 8px;
+  margin-right: 16px;
+  background: #ddd;
+  font-size: 17px;
+  border: none;
+  cursor: pointer;
+}
+
+.topnav .search-container button:hover {
+  background: #ccc;
+}
+
+@media screen and (max-width: 600px) {
+  .topnav .search-container {
+    float: none;
+  }
+  .topnav a, .topnav input[type=text], .topnav .search-container button {
+    float: none;
+    display: block;
+    text-align: left;
+    width: 100%;
+    margin: 0;
+    padding: 14px;
+  }
+  .topnav input[type=text] {
+    border: 1px solid #ccc;  
+  }
+}
+
+.sidebar {
+      position: fixed; /* Change from sticky to fixed */
+      top: 0;
+      left: 0;
+      width: 80px;
+      height: 100vh;
+      background-color: purple;
+      padding: 0.4rem 0.8rem;
+      transition: all 0.5s ease;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+
+.accordion{
+    font-family: Arial, Helvetica, sans-serif ;
+    background-color: purple;
+    color: white;
+    
+    text-decoration: none;
+    
+    display: block;
+    border: none;
+    
+    
+    
+    cursor: pointer;
+    outline: none;
+
+}
+
+.accordion-button:hover {
+    background-color: whitesmoke !important;
+    color: purple  !important;
+}
+
+.accordion-body a:hover {
+    background-color: whitesmoke;
+    color: purple;
+}
+
+.accordion-body a {
+    padding: 6px 8px 6px 30px;
+    text-decoration: none;
+    font-size: 16px;
+    color: white;
+    display: block;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+    outline: none;
+}
+
+.sidebar.active ~ .main-content {
+    left: 250px;
+    width: calc(100% - 250px);
+}
+
+.sidebar.active {
+    width: 250px;
+}
+
+.sidebar #btn {
+    position: absolute;
+    color: #fff;
+    top: .2rem;
+    left: 50%;
+    font-size: 1.2rem;
+    line-height: 40px;
+    cursor: pointer;
+    transform: translateX(-50%);
+}
+
+.sidebar.active #btn {
+    left: 90%;
+}
+
+.sidebar.top.logo {
+    display: flex;
+    color: #fff;
+    height: 50px;
+    width: 100%;
+    align-items: center;
+    pointer-events: none;
+    opacity: 0;
+}
+
+.sidebar.active.top.logo {
+    opacity: 1;
+}
+
+.top.logo i {
+    font-size: 2rem;
+    margin-right: 5px;
+}
+
+.user {
+    display: flex;
+    align-items: center;
+    margin: 1rem 0;
+}
+
+.user p {
+    color: #fff;
+    opacity: 1;
+    margin-left: 1rem;
+}
+
+.bold {
+    font-weight: 600;
+}
+
+.sidebar p {
+    opacity: 0;
+}
+
+.sidebar.active p {
+    opacity: 1;
+}
+
+.sidebar ul li {
+    position: relative;
+    list-style-type: none;
+    height: 50px;
+    width: 90%;
+    margin: 0.8rem auto;
+    line-height: 50px;
+}
+
+.sidebar ul li a {
+    color: #fff;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    border-radius: 0.8rem;
+}
+
+.sidebar ul li a:hover {
+    background-color: #fff;
+    color: purple;
+}
+
+.sidebar ul li a i {
+    min-width: 50px;
+    text-align: center;
+    height: 50px;
+    border-radius: 12px;
+    line-height: 50px;
+}
+
+.sidebar .nav-item {
+    opacity: 1;
+    margin-left: 13px;
+}
+
+.sidebar ul li .tooltip {
+    position: absolute;
+    left: 125px;
+    top: 50%;
+    transform: translateY(-50%, -50%);
+    box-shadow: 0 0.5rem 0.8rem rgba(0, 0, 0, 0.2);
+    border-radius: .6rem;
+    padding: 0.4rem 1.2rem;
+    line-height: 1.8rem;
+    z-index: 20;
+    opacity: 0;
+}
+
+.sidebar ul li a:hover .tooltip {
+    opacity: 1;
+}
+
+.sidebar.active ul li .tooltip {
+    display:none;  /*display text size normal to bold  display:auto;*/
+}
+
+
+/* .sidebar.accordian#k#kk:hover{
+   background-color: black;
+   color: white;
+
+} */
+
+.sidebar.active ul li .tooltip {
+    display: none;
+}
+
+/* .accordion:hover {
+    background-color: black;
+    color: white;
+} */
+
+.main-content {
+    position: absolute;
+    min-height: 100vh;
+    top: 0;
+    left: 80px;
+    width: calc(100% - 80px);
+    height: 100vh;
+    background-color: #f4f4f4;
+    transition: all 0.5s ease;
+    padding: 1rem;
+}
+/* Change color of scrollbar in WebKit browsers */
+.sidebar::-webkit-scrollbar {
+    width: 10px; /* Set the width of the scrollbar */
+}
+
+/* Change color of scrollbar thumb */
+.sidebar::-webkit-scrollbar-thumb {
+     /* Set the color of the thumb */
+    border-radius: 5px; /* Set the border radius of the thumb */
+    height: 10px
+}
+
+/* Change color of scrollbar track */
+.sidebar::-webkit-scrollbar-track {
+    background: #f1f1f1; /* Set the background color of the track */
+}
+
+
+/* #navbar{
+    font-size: 12px;
+    position:sticky;
+} */
+
+#navbar {
+      font-size: 12px;
+      position: -webkit-sticky;
+      position: sticky;
+      top: 0;
+      z-index: 2;
+    }
+.container-fluid {
+  background-color:purple;
+  color: white;
+  position:sticky;
+  
+}
+
+
+.container-fluid a {
+  float: left;
+  display: block;
+  background-color: purple;
+  color: white;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+  font-size: 17px;
+  
+}
+
+.container-fluid a:hover {
+  background-color: white;
+  color: purple;
+}
+
+
+ .dropdown-menu {
+  background-color: purple;
+  color: white;
+}
+
+.dropdown-menu:hover {
+  background-color: white;
+  color: purple;
+}
+
+.container-fluid .search-container {
+  float: right;
+  
+  /* padding-right: 20px; */
+}
+
+.container-fluid input[type=text] {
+  padding: 6px;
+  margin-top: 8px;
+  font-size: 17px;
+  border: none;
+}
+
+.container-fluid .search-container button {
+  float: right;
+  padding: 6px 10px;
+  margin-top: 8px;
+  margin-right: 16px;
+  height: 37px;
+  background: white;
+  font-size: 17px;
+  border: none;
+  cursor: pointer;
+}
+
+.container-fluid .search-container button:hover {
+  background: white;
+  
+}
+#hiddenDiv {
+      display: none;
+    }
+
+/* {$prefix}accordion-btn-focus-box-shadow: #{$accordion-button-focus-box-shadow}; */
+
+
+    </style>
+
+</head>
+
+<body>
+   
+    
+    <div class="sidebar"  >
+        
+        <div class="top">
+              <!-- <div class="logo">
+                  <img src="img/logo.webp" alt="img"  class="user-img">
+                  <span class="logo_name">Health Care</span>
+              </div> -->
+              <i class='bx bx-menu' id="btn"></i>
+        </div>
+
+        <div class="user">
+            <img src="https://www.shutterstock.com/image-photo/medical-concept-indian-beautiful-female-600nw-1635029716.jpg" alt="img" width="50px" height="50px" class="user-img" style="border-radius: 50%;">
+            <div>
+                <p class="bold">Health Care</h4>
+                  <p>Receptionist</p>
+                    
+               
+            </div>
+        </div>
+
+        <div class="accordion" style="background-color: purple;">
+          <!-- receptionist -->
+          <div class="accordion-item" style="border: none;">
+              <h2 class="accordion-header" id="headingDoctor" >
+                <button class="accordion-button shadow-none" type="button" data-bs-toggle="collapse"
+                data-bs-target="#collapseDashboard" aria-expanded="true" aria-controls="collapseDoctor" style="background-color: purple;color:white;">
+
+
+                
+                <i class="fa-solid fa-calendar-check"></i>
+
+                <i class="fa-solid fa-user-crown fs-5 " style="color:white;"></i>&nbsp;&nbsp;&nbsp;&nbsp;
+                <span class="fs-6 ms-3 d-none d-sm-inline"  style="padding-bottom: 3px;">Appointment</span>
+            </button>
+              </h2>
+              <div id="collapseDashboard" class="accordion-collapse collapse" aria-labelledby="headingDoctor"
+                  data-bs-parent="#accordionExample">
+                  <div class="accordion-body" style="background-color: purple;color: white;">
+                      <a href="bookappointment.php" class="list-group-item list-group-item-action">New Appointment</a>
+                      <a href="appointment.php" class="list-group-item list-group-item-action">View Appointment</a>
+                      <a href="appointmentlist.php" class="list-group-item list-group-item-action">Appointment History</a>
+
+                    
+                  </div>
+
+              </div>
+          </div>
+          <!-- Doctors -->
+
+
+        <div class="accordion" style="background-color: purple;">
+          <!-- Admin -->
+          <div class="accordion-item" style="border: none;">
+              <h2 class="accordion-header" id="headingDoctor" >
+                  <button class="accordion-button shadow-none" type="button" data-bs-toggle="collapse"
+                      data-bs-target="#collapseDoctor" aria-expanded="true" aria-controls="collapseDoctor" style="background-color: purple;color: white;">
+
+                        <i class="fa-solid fa-user-doctor"></i>
+
+                      <i class="fa-solid fa-user-crown fs-5 " style="color:purple;"></i>&nbsp;&nbsp;&nbsp;&nbsp;
+                      <span class="fs-6 ms-3 d-none d-sm-inline"  style="padding-bottom: 3px;">Doctor</span>
+                  </button>
+              </h2>
+              <div id="collapseDoctor" class="accordion-collapse collapse" aria-labelledby="headingDoctor"
+                  data-bs-parent="#accordionExample">
+                  <div class="accordion-body" style="background-color: purple;color: white;">
+                      <a href="rdoctorlist.php" class="list-group-item list-group-item-action">Doctor list</a>
+                   
+                  </div>
+              </div>
+          </div>
+
+
+          <div class="accordion-item" style="border: none;">
+            <h2 class="accordion-header" id="headingNurse">
+                <button class="accordion-button shadow-none" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#collapseNurse" aria-expanded="true" aria-controls="collapseNurse" style="background-color: purple;color: white;">
+
+                    <!-- <a href="#" class="sidebar-link has-dropdown collapsed" data-bs-toggle="collapse"data-bs-target="#dashboard" aria-expanded="false" aria-controls="dashboard" style="color: white;"> -->
+                      <i class="fa-solid fa-user-nurse"></i>
+
+                    <i class="fa-solid fa-user-crown fs-5 " style="color:purple;"></i>&nbsp;&nbsp;&nbsp;&nbsp;
+                    <span class="fs-6 ms-3 d-none d-sm-inline"  style="padding-bottom: 3px;">Nurse</span>
+                </button>
+            </h2>
+            <div id="collapseNurse" class="accordion-collapse collapse" aria-labelledby="headingNurse"
+                data-bs-parent="#accordionExample">
+                <div class="accordion-body" style="background-color: purple;color: white;">
+                    <a href="rnurselist.php" class="list-group-item list-group-item-action">Nurse Records</a>
+
+                </div>
+            </div>
+        </div>
+          <!-- Doctors -->
+          <div class="accordion-item" style="border: none;">
+              <h2 class="accordion-header" id="headingPatients">
+                  <button class="accordion-button shadow-none" type="button" data-bs-toggle="collapse"
+                      data-bs-target="#collapsePatients" aria-expanded="true"aria-controls="collapsePatients" style="background-color: purple;color: white;">
+                      
+                      <!-- <a href="#" class="sidebar-link has-dropdown collapsed" data-bs-toggle="collapse"data-bs-target="#dashboard" aria-expanded="false" aria-controls="dashboard" style="color: white;" > -->
+                        <i class="fa-solid fa-users"></i>
+
+                      <i class="fa-solid fa-user-crown fs-5 " style="color:purple;"></i>&nbsp;&nbsp;&nbsp;&nbsp;
+                      <span class="fs-6 ms-3 d-none d-sm-inline"  style="padding-bottom: 3px;">Patient</span>
+
+                  </button>
+              </h2>
+              <div id="collapsePatients" class="accordion-collapse collapse" aria-labelledby="headingPatients"
+                  data-bs-parent="#accordionExample">
+                  <div class="accordion-body" style="background-color: purple;color: white;">
+                      <a href="rpatient.php" class="list-group-item list-group-item-action">Patient Details</a>
+                      <a href="rpregistration.php" class="list-group-item list-group-item-action">Patient Register</a>
+                      
+
+                  </div>
+              </div>
+          </div>
+          <!-- Patients -->
+         
+          <!-- Blood Bank -->
+          <div class="accordion-item" style="border: none;">
+              <h2 class="accordion-header" id="headingBloodbank">
+                  <button class="accordion-button shadow-none" type="button" data-bs-toggle="collapse"
+                      data-bs-target="#collapseBloodbank" aria-expanded="true"
+                      aria-controls="collapseBloodbank" style="background-color: purple;color: white;">
+                      
+                      <!-- <a href="#" class="sidebar-link has-dropdown collapsed" data-bs-toggle="collapse"data-bs-target="#dashboard" aria-expanded="false" aria-controls="dashboard" style="color: white;"> -->
+                        <i class="fa-solid fa-droplet"></i>
+
+                      <i class="fa-solid fa-user-crown fs-6 " style="color:purple;"></i>&nbsp;&nbsp;&nbsp;&nbsp;
+                      <span class="fs-6 ms-3 d-none d-sm-inline"  style="padding-bottom: 3px;">Blood Bank</span>
+                  </button>
+              </h2>
+              <div id="collapseBloodbank" class="accordion-collapse collapse"
+                  aria-labelledby="headingBloodbank" data-bs-parent="#accordionExample">
+                  <div class="accordion-body" style="background-color: purple;color: white;"> 
+                      <a href="rbloodbank.php" class="list-group-item list-group-item-action">Available Blood</a>
+                      <a href="rdonarlist.php" class="list-group-item list-group-item-action">Donar list</a>
+                      <a href="rdonation.php" class="list-group-item list-group-item-action">New Donar</a>
+
+                  </div>
+              </div>
+          </div>
+          
+
+              
+              
+          </div>
+      </div>
+      <!-- New Register -->
+      
+      <ul class="menu" style="padding-left: 0rem;" id="accordion">
+
+
+
+          
+<li class="sidebar-item">
+
+
+</a>
+<a href="logout.php" class="sidebar-link has-dropdown collapsed">
+<i class="fa-solid fa-right-from-bracket"></i>&nbsp;&nbsp;&nbsp;
+<span class="fs-6">Logout</span>
+
+
+<i class="lni lni-protection"></i>
+
+
+</a>
+
+
+
+</li>
+
+</ul>
+      
+</div>
+
+
+<script>
+  /* Loop through all dropdown buttons to toggle between hiding and showing its dropdown content - This allows the user to have multiple dropdowns without any conflict */
+  var dropdown = document.getElementsByClassName("dropdown-btn");
+  var i;
+  
+  for (i = 0; i < dropdown.length; i++) {
+    dropdown[i].addEventListener("click", function() {
+      this.classList.toggle("active");
+      var dropdownContent = this.nextElementSibling;
+      if (dropdownContent.style.display === "block") {
+        dropdownContent.style.display = "none";
+      } else {
+        dropdownContent.style.display = "block";
+      }
+    });
+  }
+  </script>
+   
+
+<div class="main-content" style="padding: 0;">
+
+
+  <nav class="navbar navbar-expand-lg bg-body-tertiary" id="navbar">
+    <div class="container-fluid">
+
+
+      <img src="https://marketplace.canva.com/EAFBb6P4OLs/1/0/1600w/canva-red-blue-simple-logo-hbl5vlZh180.jpg
+      " alt="Bootstrap" width="55" height="54" style="border-radius: 50%; margin: 4px; float: right;">
+
+      <a class="navbar-brand" href="receptionistd.php" id="b">Home</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse justify-content-center" id="navbarSupportedContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          
+          <!-- <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+             Dashboards
+            </a>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="#">Doctor</a></li>
+              <li><a class="dropdown-item" href="#">Nurse</a></li>
+              <li><a class="dropdown-item" href="#">Receptionist</a></li>
+              <li><a class="dropdown-item" href="#">Accountant</a></li>
+              <li><hr class="dropdown-divider"></li>
+              
+            </ul>
+          </li>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -->
+          
+        </ul>
+        <!-- <div class="search-container" style=" margin-bottom: 10px;">
+            <form action="/action_page.php">
+              <input type="text" placeholder="Search" name="search">
+              <button type="submit"><i class="fa fa-search"></i></button>
+            </form>
+          </div> -->
+
+          <svg xmlns="http://www.w3.org/2000/svg" href="logout.php" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-right" viewBox="0 0 16 16">
+            <path fill-rule="evenodd" d="M10 12.5a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v2a.5.5 0 0 0 1 0v-2A1.5 1.5 0 0 0 9.5 2h-8A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-2a.5.5 0 0 0-1 0z"/>
+            <path fill-rule="evenodd" d="M15.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L14.293 7.5H5.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708z"/>
+          </svg>
+
+      </div>
+    </div>
+  </nav>
+
+
+<!-- <div class="topnav" height="">
+  <a class="" href="#home">Home</a>
+
+  <img src="img/dr.jpg" alt="Bootstrap" width="55" height="54" style="border-radius: 50%;">
+ 
+  <div class="search-container">
+    <form action="/action_page.php">
+      <input type="text" placeholder="Search.." name="search">
+      <button type="submit"><i class="fa fa-search"></i></button>
+    </form>
+  </div>
+</div> -->
+
+<!-- <div style="padding-left:16px">
+
+
+
+  <h2>Hello Good Morning!</h2>
+
+  
+</div> -->
+
+<div class="container">
+    <div class="row ">
+        <div class="col-md-12">
+            <div class="card ">
+
+            <!-- <div class="header" style="background-color:purple;color:white;height:50px;"> -->
+            <div class="header p-3" style="height:80px;">
+
+           
+
+                    <h3 class="card-title text-center"> <i class="fa-solid fa-hospital-user" style="color:purple;"></i>&nbsp;&nbsp;Patient Registration</h3>
+
+                  
+ 
+    
+                  </div>
+
+                  
+                  <hr>
+                <div class="card-body bg-light">
+                    
+                <form method="post" action ="updatepatient.php" enctype="multipart/form-data">
+                
+                <input type="hidden" id="id" name="id" value="<?php echo $id?>">
+    
+                    <div class="row">
+    
+                    <div class="col-sm-4" style="padding-top :30px;">
+                        <div class="form-group">
+                            <label for="patient"> Select Patient type</label>
+                            <select class="form-control" id="patient"  name="patient" >
+    
+                            <option > patient Type</option>
+    
+                              <option name="gender" value="OPD" <?php if($row['patient']== 'OPD'){ echo 'selected';}?>>OPD</option>
+    
+                              <option name="gender" value="IPD"<?php if($row['patient']== 'IPD'){ echo 'selected';}?>>IPD</option>
+    
+                              <option name="gender" value="Emergency"<?php if($row['patient']== 'Emergency'){ echo 'selected';}?>>Emergency</option>
+                             </select>
+                            </div>
+                            </div>
+    
+    
+    
+                        <div class="col-sm-4"style="padding-top :30px;">
+                            <div class="form-group">
+                                <label for="fname">First Name</label>
+                             <input type="text" class="form-control" placeholder="Enter First Name" name="fname" id="fname" value="<?php echo $row['fname'];?>">
+                               
+                            </div>
+                        </div>
+    
+    
+    
+    
+                        
+    
+                        <div class="col-sm-4">
+                            <div class="form-group"style="padding-top :30px;">
+                                <label for="mname">Middle Name</label>
+                                <input type="text" class="form-control" placeholder="Enter Middle Name" name="mname" id="mname"value="<?php echo $row['mname'];?>">
+                               
+                            </div>
+                        </div>
+    
+    
+                        <div class="col-sm-4">
+                            <div class="form-group"style="padding-top :30px;">
+                                <label for="lname">Last Name</label>
+                                <input type="text" class="form-control" placeholder="Enter Last Name" name="lname" id="lname"value="<?php echo $row['lname'];?>">
+                             
+                            </div><br>
+                        </div>
+    
+                        <div class="col-sm-4">
+                            <div class="form-group" style="padding-top :30px;">
+                             
+                                <label for="gender">Select gender:</label>
+                                <select class="form-select" id="gender"  name="gender" required>
+                                  <option value="" <?php if($row['gender']== ''){ echo 'selected';}?>>Select Gender</option>
+    
+                                  <option value="Male"<?php if($row['gender']== 'Male'){ echo 'selected';}?>>Male</option>
+    
+                                  <option value="Female"<?php if($row['gender']== 'Female'){ echo 'selected';}?>>Female</option>
+    
+                                  <option value="Other"<?php if($row['gender']== 'other'){ echo 'selected';}?>>Other</option>
+                                 
+                                </select>
+                               
+                              
+                                </div>
+                                </div>
+    
+    
+                        
+                     
+    
+    
+                        <div class="col-sm-4">
+                            <div class="form-group"style="padding-top :30px;">
+                                <label for="aadhar">Adhar No</label>
+                                <input type="text" class="form-control" placeholder="Enter Adhar No" name="aadhar" id="aadhar" value="<?php echo $row['aadhar'];?>">
+                               
+                            </div>
+                        </div>
+                        
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <label for="address">Address</label>
+                                <input type="text" textarea class="form-control" name="address" id=address rows="3" placeholder="Enter Patient's Address" value="<?php echo $row['address'];?>"></textarea>
+                             
+                            </div><br>
+                            
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <label for="contact">Contact</label>
+                                <input type="text" class="form-control" placeholder="Enter Contact Number" name="contact" id="contact" value="<?php echo $row['contact'];?>">
+                               
+                            </div>  
+                             </div>
+                      
+    
+                             <div class="col-sm-4">
+                            <div class="form-group">
+                                <label for="emergency">Emergency Contact</label>
+                                <input type="text" class="form-control" placeholder="Enter Adhar No" name="contacts" id="contacts"value="<?php echo $row['aadhar'];?>">
+                               
+                            </div>
+                        </div>
+    
+    
+                            <div class="col-sm-4">
+                            <div class=" form-group  label">
+                            <label for="dob">DOB:</label>
+                           <input type="date" class="form-control"  name="dob"  id="dob" placeholder=""value="<?php echo $row['dob'];?>">
+                        </div>
+                        </div>
+    
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <label for="age">Age</label>
+                                <input type="text" class="form-control" placeholder="Age" name="age" id="age" value="<?php echo $row['age'];?>">
+                               
+                            </div>
+                        </div>
+    
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <label for="height">Height</label>
+                                <input type="height" class="form-control" placeholder="Height" name="height" id="height" value="<?php echo $row['height'];?>">
+                               
+                            </div><br>
+                        </div>
+    
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <label for="weight">Weight</label>
+                                <input type="text" class="form-control" placeholder="Weight" name="weight" id="weight" value="<?php echo $row['weight'];?>">
+                               
+                            </div>
+                        </div>
+    
+    
+                        <div class="col-sm-4">
+                        <div class="form-group">
+                                
+                        <label for="blood">Blood Group</label><br>
+                        <select  name="blood" id="blood" class="form-select" >
+                        <option value="" <?php if($row['blood']== 'select'){ echo 'selected';}?>>Select Blood Group</option>
+    
+                          <option value="A+"<?php if($row['blood']== 'A+'){ echo 'selected';}?>>A+</option>
+    
+                          <option value="A-"<?php if($row['blood']== 'A-'){ echo 'selected';}?>>A-</option>
+    
+                          <option value="B+"<?php if($row['blood']== 'B+'){ echo 'selected';}?>>B+</option>
+    
+                          <option value="B-"<?php if($row['blood']== 'B-'){ echo 'selected';}?>>B-</option>
+    
+                          <option value="AB+"<?php if($row['blood']== 'AB+'){ echo 'selected';}?>>AB+</option>
+    
+                          <option value="AB-"<?php if($row['blood']== 'AB_'){ echo 'selected';}?>>AB-</option>
+    
+                          <option value="O+"<?php if($row['blood']== 'O+'){ echo 'selected';}?>>O+</option>
+    
+                          <option value="O-"<?php if($row['blood']== 'O-'){ echo 'selected';}?>>O-</option>
+                        </select>
+                      
+                      </div>
+                      </div>
+    
+                      <div class="col-sm-4">
+                            <div class="form-group">
+                                <label for="occupation">Occupation</label>
+                                <input type="text" class="form-control" placeholder="Occupation" name="occupation" id="occupation"value="<?php echo $row['occupation'];?>">
+                               
+                            </div><br>
+                        </div>
+    
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <label for="medical">Medical History</label>
+                                <input type="text" class="form-control" placeholder="Medical History" name="medical" id="medical" value="<?php echo $row['medical'];?>">
+                               
+                            </div>
+                        </div>
+    
+                        
+    
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <label for="indate">Indate</label>
+                                <input type="date" class="form-control" placeholder="Enter Indate" name="indate" id="indate"value="<?php echo $row['indate'];?>">
+                               
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                            <label for="outdate">Outdate:</label>
+                <input type="date" class="form-control"  name="outdate" id="outdate"  placeholder=""value="<?php echo $row['outdate'];?>">
+                           
+                            </div><br>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <label for="roomno">Room No</label>
+                                <input type="text" class="form-control" placeholder="Enter Room Number" name="roomno" id="roomno"value="<?php echo $row['roomno'];?>">
+                            
+                            </div>
+                        </div>
+    
+                       
+    
+                            
+    
+                          <div class="col-sm-4">
+                            <div class="form-group">
+                                <label for="doctor">Doctor Assigned</label>
+                                <input type="text" class="form-control" placeholder=" Dr. Name" name="doctor" id="doctor"value="<?php echo $row['doctor'];?>">
+                            
+                            </div>
+                          </div>
+                       
+    
+                          <div class="col-sm-4">
+                            <div class="form-group">
+                                <label for="nurse">Nurse Assigned </label>
+                                <input type="text" class="form-control" placeholder="Enter Adhar No" name="nurse" id="nurse" value="<?php echo $row['nurse'];?>">
+                               
+                            </div><br>
+                        </div>
+            
+                           
+                        <div>
+                                    <button  onclick="preventsubmit(event);toggleDiv('hiddenDiv');" class="btn btn-danger">Insurance</button>&nbsp;  
+                                    <button onclick="preventsubmit(event);toggleDiv('hiddenDivv');" class="btn btn-" style="background-color:purple;color:white"> Add Prescription</button>
+                                </div>
+
+                              
+    
+               
+                  <div id="hiddenDiv">
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <label for="company">Insurance Company</label>
+                                <input type="text" class="form-control" id="company" name="company" placeholder="Company name"value="<?php echo $row['company'];?>">
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <label for="insuranceid">Insurance Id</label>
+                                <input type="text" class="form-control" id="insuranceid" name="insuranceid" placeholder="Insurance ID"value="<?php echo $row['insuranceid'];?>">
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                            <label for="expirydate">Expiry Date:</label>
+                <input type="date" class="form-control"  name="expirydate" id="expirydate"   placeholder=""value="<?php echo $row['expirydate'];?>">
+                            </div><br>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <label for="holder">Holder Name</label>
+                                <input type="text" class="form-control" id="holder" name="holder" placeholder="Holder"value="<?php echo $row['holder'];?>">
+                            </div>
+                        </div>
+    
+    
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <label for="ephone">Emergency Contact</label>
+                                <input type="text" class="form-control" id="ephone" name="ephone" placeholder="Emergency Contact"value="<?php echo $row['ephone'];?>">
+                            </div><br>
+                        </div>
+                   
+    
+                    <div class="col-sm-4">
+                            <div class="form-group">
+                                <label for="relation">Relation</label>
+                                <input type="text" class="form-control" id="relation" name="relation" placeholder="Relation"value="<?php echo $row['relation'];?>">
+                            </div>
+                        </div>
+                 
+                    
+      
+           
+<script>
+                                                function toggleDiv(p) {
+                                                 var div = document.getElementById(p);
+                                                if (div.style.display === 'none') {
+                                                 div.style.display = 'block';
+                                                } else {
+                                                div.style.display = 'none';
+                                              }
+                                            }
+                                                </script>
+          </div>
+          </div>
+    </div>
+    
+    
+    
+    <div id="hiddenDivv" style="display: none;">
+        <table class="table table-bordered" id="dynamicTable">
+            <thead>
+                <tr>
+                    <th>Sr.No</th>
+                    <th>Tablets Name</th>
+                    <th>Tablets Quantity</th>
+                    <th>Morning-tab</th>
+                    <th>Afternoon-tab</th>
+                    <th>Evening-tab</th>
+                    <th>Lunch/Dinner</th>
+                    <th>Notes</th>
+                   
+                    
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+          <?php
+        
+
+          
+          ?>
+
+
+ 
+<div class="row">
+  <h4 class="p-4 ">Blood Test</h4>
+
+  
+                    <div class="form-group col-sm-3">
+                      <input type="checkbox" class="form-check-input" id="test1"name="test[]" value="cbc">
+                      <label for="test1"> CBC</label><br>
+                    </div>
+                    <div class="form-group col-sm-3">
+                      <input type="checkbox" class="form-check-input" id="test2" name="test[]" value="uric acid">
+                      <label for="test2"> Uric acid</label><br>
+                    </div>
+                    <div class="form-group col-sm-3">
+                      <input type="checkbox" class="form-check-input" id="test3" name="test[]" value="aso test">
+                      <label for="test3"> Aso test</label><br>
+                    </div>
+                    <div class="form-group col-sm-3">
+                      <input type="checkbox" class="form-check-input" id="test4" name="test[]" value="lft">
+                      <label for="test4"> Lft</label><br>
+                      </div>
+</div>
+                  
+                      <div class="row">
+                      <div class="form-group col-sm-3">
+                      <input type="checkbox" class="form-check-input" id="test5" name="test[]" value="rft">
+                      <label for="test5">Rft</label><br>
+                      </div>
+                      <div class="form-group col-sm-3">
+                      <input type="checkbox" class="form-check-input" id="test6" name="test[]" value="sugar">
+                      <label for="test6"> sugar</label><br>
+                    </div>
+                    <div class="form-group col-sm-3">
+                      <input type="checkbox" class="form-check-input" id="test6" name="test[]" value="calcium">
+                      <label for="test6">Calcium</label><br>
+                      </div>
+                      <div class="form-group col-sm-3">
+                        <input type="checkbox" class="form-check-input" id="test7" name="test[]" value="pp sugar">
+                        <label for="test7">Pp sugar</label><br>
+                        </div>
+                      </div>
+
+                      <div class="row">
+                        <div class="form-group col-sm-3">
+                        <input type="checkbox" class="form-check-input" id="test8" name="test[]" value="lipid profile">
+                        <label for="test8">Lipid profile</label><br>
+                        </div>
+                        <div class="form-group col-sm-3">
+                        <input type="checkbox"class="form-check-input" id="test9" name="test[]" value="ra test">
+                        <label for="test9">RA test</label><br>
+                      </div>
+                      <div class="form-group col-sm-3">
+                        <input type="checkbox" class="form-check-input" id="test10" name="test[]" value="stool routine">
+                        <label for="test10">Stool routine</label><br>
+                        </div>
+
+                        <div class="form-group col-sm-3">
+    <input type="checkbox" class="form-check-input" id="test10" name="test[]" value="None">
+    <label for="test10">None</label><br>
+</div>
+
+                                          </div>
+                        
+
+
+
+                                    <td>1</td>    
+                                            
+                <input type="hidden" name="hidden_value" value="aadhar" name="aadhar"    value="<?php echo $row1['aadhar'];?>">
+                <input type="hidden" name="hidden_value" value="date" name="date"    value="<?php echo date("Y");?>">
+                    <td><input type="text" class="form-control" placeholder="Tablet Name" name="tablet_name[]"></td>
+                    <td><input type="number" class="form-control" placeholder="Quantity" name="tablet_quantity[]"></td>
+                    <td>
+    <select class="form-control" id="morning" name="tab_morning[]">
+    <option selected hidden>
+    </option>
+        <option value="half" >1/2 tablet</option>
+        <option value="one" >1 tablet</option>
+        <option value="two" >2 tablets</option>
+        <option value="three">3 tablets</option>
+    </select>
+</td>
+
+
+                               
+                    <td> 
+                    <select class="form-control" id="afternoon" name="tab_afternoon[]">
+                    <option selected></option>
+    <option value="half" >1/2 tablet</option>
+    <option value="one">1 tablet</option>
+    <option value="two">2 tablets</option>
+    <option value="three" >3 tablets</option>
+</select>
+
+<td>
+    <select class="form-control" id="evening" name="tab_evening[]">
+    <option selected></option>
+        <option value="half" >1/2 tablet</option>
+        <option value="one">1 tablet</option>
+        <option value="two" >2 tablets</option>
+        <option value="three" >3 tablets</option>
+    </select>
+</td>
+
+                    <td>  <select class="form-control" id="lunch"  name="tab_lunch[]" >
+                               
+                    <option selected></option>
+                                 <option value ="before">After</option>
+                                 <option value = "after">Before</option>
+                          
+                                </select></td>
+
+                              
+
+
+                                <td><input type="text" class="form-control" placeholder="medical" name="medical[]" value=""></td>
+                                
+                    
+                    <td>    
+                        <button class="btn btn-danger" onclick="deleteRow(this)">Delete</button>
+                    </td>
+                </tr>
+                <?php  ?>
+            </tbody>
+        </table>
+        <button onclick="addRow();" class="btn btn-primary mt-2" name="add">Add Row</button>
+    </div>
+
+                                
+          
+         
+           
+              <div class="card-footer footer" >
+              <div class="form-group form-check">
+                                        <input type="checkbox" class="form-check-input" id="check"> 
+                                       <label class="form-check-label" for="check">By submitting this form, I hereby declare that the information provided above is accurate and true to the best of my knowledge.</label>
+                                       </div>
+
+                                       
+
+                            <div style="text-align:center">
+                                <button type="submit" name="update"  id="newbtn" class="btn btn- " style="background-color:purple;color:white">Submit</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                <button type="reset" name="reset"  id="newbtn" class="btn btn-secondary">Reset</button>
+                                </div>
+                              
+                    </div>
+                </form>
+                </div>
+            </div>
+        </div>
+    </div>
+          
+           
+<script>
+    // let hideshow=document.getElementByClass('emergency')
+
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+<script>
+function preventsubmit(event)
+{
+    event.preventDefault();
+}
+</script>
+<script>
+    //validation for firstname.
+      document
+        .getElementById("fname")
+        .addEventListener("input", function (event) {
+          var fnameInput = event.target.value;
+          var fnameRegex = /^[A-Za-z\s]+$/;
+          var fnameValidation = document.getElementById("fnameValidation");
+
+          if (!fnameRegex.test(fnameInput)) {
+            fnameValidation.textContent =
+              "Name must contain only letters and spaces.";
+          } else {
+            fnameValidation.textContent = "";
+          }
+        });
+        //Validation for Middlename.
+        document
+        .getElementById("mname")
+        .addEventListener("input", function (event) {
+          var mnameInput = event.target.value;
+          var mnameRegex = /^[A-Za-z\s]+$/;
+          var mnameValidation = document.getElementById("mnameValidation");
+
+          if (!mnameRegex.test(mnameInput)) {
+            mnameValidation.textContent =
+              "Name must contain only letters and spaces.";
+          } else {
+            mnameValidation.textContent = "";
+          }
+        });
+
+        //Valiadtion for lastname.
+        document
+        .getElementById("lname")
+        .addEventListener("input", function (event) {
+          var lnameInput = event.target.value;
+          var lnameRegex = /^[A-Za-z\s]+$/;
+          var lnameValidation = document.getElementById("lnameValidation");
+
+          if (!lnameRegex.test(lnameInput)) {
+            lnameValidation.textContent =
+              "Name must contain only letters and spaces.";
+          } else {
+            lnameValidation.textContent = "";
+          }
+        });
+
+        //Validations for occupation filed.
+        document
+        .getElementById("occupation")
+        .addEventListener("input", function (event) {
+          var occupationInput = event.target.value;
+          var occupationRegex = /^[A-Za-z\s]+$/;
+          var occupationValidation = document.getElementById("occupationValidation");
+
+          if (!occupationRegex.test(mnameInput)) {
+            occupationValidation.textContent =
+              "Name must contain only letters and spaces.";
+          } else {
+            occupationValidation.textContent = "";
+          }
+        });
+    
+        //Validations for submit filed.
+      document
+        .getElementById("registrationForm")
+        .addEventListener("submit", function (event) {
+          var inputs = document.querySelectorAll("input");
+          var isValid = true;
+
+          inputs.forEach(function (input) {
+            if (!input.checkValidity()) {
+              isValid = false;
+            }
+          });
+
+          if (!isValid) {
+            event.preventDefault();
+          }
+        });
+</script>
+
+</div>
+
+</body>
+
+<script>
+    let btn = document.querySelector("#btn");
+    let sidebar = document.querySelector(".sidebar");
+    let searchBtn = document.querySelector(".bx-search");
+
+    btn.onclick = function(){
+        sidebar.classList.toggle("active");
+    };
+</script>
+
+
+<script>
+      
+
+        function addRow() {
+            const tableBody = document.querySelector("#dynamicTable tbody");
+            const newRow = document.createElement("tr");
+            event.preventDefault();
+            
+            // Create cells for the new row
+            newRow.innerHTML = `
+            <td>${tableBody.children.length + 1}</td>
+                    <td><input type="text" class="form-control" placeholder="Tablet Name" name="tablet_name[]"></td>
+                    <td><input type="number" class="form-control" placeholder="Quantity" name="tablet_quantity[]"></td>
+                    <td>   <select class="form-control" id="morning"  name="tab_morning[]" >
+                               
+                    <option selected hidden></option>
+                                 <option value="half">1/2 tablet</option>
+                                 <option value="one">1 tablet</option>
+                                 <option value="two">2 tablets</option>
+                                 <option value="three">3 tablets</option>
+                                </select></td>
+                    <td> 
+                                <select class="form-control" id="afternoon"  name="tab_afternoon[]" >
+                               
+                                <option selected hidden></option>
+                                  <option value="half">1/2 tablet</option>
+                                  <option value="one">1 tablet</option>
+                                  <option value="two">2 tablets</option>
+                                  <option value="three">3 tablets</option>
+                                 </select></td>
+                    <td>  <select class="form-control" id="evening"  name="tab_evening[]" >
+                               
+                    <option selected hidden></option>
+                                 <option value="half">1/2 tablet</option>
+                                 <option value="one">1 tablet</option>
+                                 <option value="two">2 tablets</option>
+                                 <option value="three">3 tablets</option>
+                                </select></td>
+                    <td>  <select class="form-control" id="lunch"  name="tab_lunch[]" >
+                               
+                    <option selected hidden></option>
+                                 <option value="after">After</option>
+                                 <option value="before">Before</option>
+                          
+                                </select></td>
+
+                              
+                              
+
+                                <td><input type="text" class="form-control" placeholder="medical" name="medical[]"></td>
+
+              
+                <td>
+                    <button class="btn btn-danger" onclick="deleteRow(this)">Delete</button>
+                </td>
+            `;
+            
+            // Append the new row to the table body
+            tableBody.appendChild(newRow);
+        }
+
+        function deleteRow(button) {
+            // Find the row that contains the button
+            const row = button.closest("tr");
+            
+            // Remove the row from the table
+            row.remove();
+            
+            // Optionally, you can update the row numbers in the first column if needed
+            const tableBody = document.querySelector("#dynamicTable tbody");
+            const rows = tableBody.children;
+            for (let i = 0; i < rows.length; i++) {
+                rows[i].children[0].innerText = i + 1;
+            }
+        }
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+</html>
+
